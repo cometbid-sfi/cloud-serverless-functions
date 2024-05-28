@@ -1,0 +1,76 @@
+## YAML Template.
+---
+spring:
+  application.name: employee-service
+  lifecycle.timeout-per-shutdown-phase: 30s
+  jackson:
+    default-property-inclusion: non-default
+    serialization:
+      indent-output: true
+  profiles:
+    active: dev #,prod
+  datasource:
+    url: jdbc:h2:mem:employee 
+    driverClassName: org.h2.Driver   
+    username: sa
+    password:
+  h2:
+    console.enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties.hibernate.jdbc.time_zone: UTC
+    defer-datasource-initialization: true
+    hibernate.ddl-auto: create-drop
+
+springdoc:
+  # swagger-ui custom path
+  swagger-ui:
+    path: /v1/api-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    enabled: true
+    
+  # /api-docs endpoint custom path
+  api-docs:
+    path: /v1/api-docs
+    enabled: true
+    # Packages to include
+    groups:
+      enabled: true 
+  packagesToScan: org.cometbid.kubeforce.payroll.employee
+  pathsToMatch: /api/**
+  
+   
+local.server.apidoc.url: https://${spring.application.name}/api/v1/api-ui.html
+test.server.apidoc.url: https://${spring.application.name}/api/v1/api-ui.html
+
+api:
+  common:
+    version: 1.0.0    
+    documentation: http://springdoc.org
+    help: https://affinitylive.jira.com/wiki/display/APIS/Status+Codes#
+    reportError: https://cometbid.sendreport.org
+    title: Cometbid Sample API
+    description: Description of the API...
+    termsOfService: MY TERMS OF SERVICE
+    license: The MIT License 
+    licenseUrl: https://opensource.org/license/mit
+
+    externalDocDesc: SpringShop Wiki Documentation
+    externalDocUrl: https://springshop.wiki.github.org/docs
+    contact:
+      name: Adebowale Oluwagbemiga Samuel
+      url: https://cometbid.org/, https://github.com/cometbid-sfi
+      email: cometbid@cometbid.org
+
+  responseCodes:
+    ok.description: OK(Success)
+    created.description: Resource Created
+    badRequest.description: Bad Request due to invalid format of the request. See response message for more information
+    unauthorized.description: Unauthorized
+    forbidden.description: Forbidden
+    server.error.description: Server Failure
+    notFound.description: Not found, the specified id does not exist
+    conflict.description: Resource conflict, similar resource already exist
+    server.unavailable.description: Service Unavailable
+    unprocessableEntity.description: Unprocessable entity, input parameters caused the processing to fail. See response message for more information

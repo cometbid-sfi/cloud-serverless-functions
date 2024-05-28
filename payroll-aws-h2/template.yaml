@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Using AWS SAM for infrastructure as code
+
+Globals:
+  Function:
+    Runtime: java21
+    Architectures:
+      - x86_64
+    MemorySize: 512
+    Timeout: 15
+
+Resources:
+  PayrollApiFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: target/payroll-aws-h2-0.0.1-aws.jar
+      Handler: org.cometbid.kubeforce.payroll.aws.requesthandlers.StreamLambdaHandler::handleRequest
+      AutoPublishAlias: production
+      SnapStart:
+        ApplyOn: PublishedVersions
+
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          JAVA_TOOL_OPTIONS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1 # More info about tiered compilation https://aws.amazon.com/blogs/compute/optimizing-aws-lambda-function-performance-for-java/
+      #Policies:
+      #- AWSSecretsManagerGetSecretValuePolicy:
+      # SecretArn: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${DatabaseSecretName}
+      Events:
+        Payroll:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  PayrollApi:
+    Description: "API Gateway endpoint URL for Prod stage for Employee Payroll function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+  PayrollApiFunction:
+    Description: "Employee Payroll Lambda Function ARN"
+    Value: !GetAtt PayrollApiFunction.Arn
+  PayrollApiFunctionIamRole:
+    Description: "Implicit IAM Role created for Employee Payroll function"
+    Value: !GetAtt PayrollApiFunctionRole.Arn
